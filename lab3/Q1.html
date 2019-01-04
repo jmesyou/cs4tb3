@@ -1,0 +1,53 @@
+﻿<html>
+
+<!--
+name: James You
+-->
+
+<head>
+	<title>Lab Question 1</title>
+</head>
+<body>
+
+	<input id="input" type="text" size="24" value=""/>
+	<input type="submit" onclick="submit()"/>
+
+	<p id="result"></p>
+
+	<script type="text/javascript">
+function submit(){
+	var sText = document.getElementById("input").value;
+	document.getElementById("result").innerHTML = isValidCreditCard(sText);
+}
+function checkForm(sText){
+	var re = /(^4\d{12}$)|(^4\d{15}$)|(^3[4|7]\d{13}$)|(^5[1-5]\d{14}$)/gm;
+	return sText.search(re) > -1;
+}
+function checkLuhn(sText){
+	var array = sText.split("").reverse();
+	console.log(array)
+	var lastDigit = array[0];
+	var sum = 0;
+	for (var i = 1; i < array.length; i++) {
+		var digit = parseInt(array[i]);
+		if (i % 2 == 1) {
+			digit *= 2;
+			if (digit > 9) {
+				digit -= 9;
+			}
+		}
+		console.log ( sum, "+", digit)
+		sum += digit
+	}
+	console.log ("sum", sum)
+	var checkDigit = 10 - sum % 10
+	console.log ("checkDigit", checkDigit)
+	return lastDigit == checkDigit
+}
+function isValidCreditCard(sText){
+	return checkForm(sText) && checkLuhn(sText);
+}
+	</script>
+
+</body>
+</html>

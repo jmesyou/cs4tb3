@@ -1,0 +1,77 @@
+(*
+name: James You
+*)
+
+selector = {"." ident            (* write('.'); write(ident) *)
+         | "[" expression "]"} ; (* write('['); prettify(expression); write(']') *)
+
+factor = ident selector     (* write(ident); prettify(selector) *)  
+       | integer            (* write(integer) *)
+       | "(" expression ")" (* write('('); prettify(expression); write(')'))
+       | "not" factor ;     (* write('and'); prettify(factor') *)
+
+term = factor {("*" | "div" | "mod" | "and") factor} ; (* prettify(factor(0)); while has-symbol: write('*' | 'div' | 'mod' | 'and'); prettify(factor(1))*)
+
+simpleExpression = ["+" | "-" ] term  {( "+" | "-" | "or") term} ; (* write('+' | '-'); prettify(term(0); while has-symbol: write('+' | '-' | 'or'); prettify(term(1))))
+
+expression = simpleExpression {("=" | "<>" | "<" | "<=" | ">" | ">=") simpleExpression} ; (* prettify(simpleExpression(0) while has-symbol: write(compare_op); 
+                                                                                                                                     prettify(simpleExpression)(1)) *)
+
+compoundStatement = "begin" statement {";" statement} "end" ; (* write('begin'); prettify(statement(0)); 
+                                                                 while has-symbol: 
+                                                                    write(';'); 
+                                                                    write('\n');
+                                                                    indent();
+                                                                    prettify(statement(1))
+                                                                 write('end') *)
+
+statement = ident selector ":=" expression                     (* write(ident); prettify(selector); write(':='); prettify(expression))
+          | ident "(" [expression {"," expression}] ")"        (* write(ident); write('(') if expression: 
+                                                                                                write(expr(1)); 
+                                                                                                while has-symbol:
+                                                                                                    write(',');
+                                                                                                    prettify(expr(2));
+                                                                                                write(')'); *)
+          | compoundStatement                                  (* prettify(compoundStatement) *)
+          | "if" expression "then" statement ["else"statement] (* write('if '); prettify(expression); write('then');
+                                                                  newline(); indent(); prettify(statement(0));
+                                                                  if next('else'):
+                                                                    prettify(statement(1)); *)
+          | "while" expression "do" statement ;                (* write('while'); prettify(expr); write('do'); newline();
+                                                                  prettify(statement *)
+
+type = ident                                                 (* write(ident) *)
+     | "array" "[" expression ".." expression "]" "of" type  (* newline(); indent(); write('array'); 
+                                                                write('[ '); prettify(expr(0); write(' .. '); prettify(expr(1)); write(' of ');
+                                                                prettify(type')*)
+     | "record" typedIds {";" typedIds} "end" ;              (* write('record'); newline(); indent(); prettify(typedIds); 
+                                                                while next(';'):
+                                                                    newline();
+                                                                    indent();
+                                                                    prettify(typedIds(1)); 
+                                                                write('end'); *)
+
+typedIds = ident {"," ident} ":" type;  (write(ident) if next('.'): 
+                                                        write(','); 
+                                                        write(ident);
+                                                      write(':');
+                                                      write(type); *)
+
+declarations = {"const" ident "=" expression ";"} (* write('const');  newline(); indent++; indent(); write(ident); write('='); prettify(expr); write(';') *)
+               {"type" ident "=" type ";"}        (* write('type'); newline(); indent++; indent(); write(ident); write(' = '); prettify(type); write(';') *)
+               {"var" typedIds ";"}               (* write('var'); prettify(typedIds); write(';');*)
+               {"procedure" ident ["(" [["var"] typedIds {";" ["var"] typedIds}] ")"] ";" 
+                            declarations compoundStatement ";"} ; (* write('procedure'); write(ident); 
+                                                                     if next('('):
+                                                                        write('(');
+                                                                        if next("var"):
+                                                                            write("var")
+                                                                            prettify(typedIds);
+                                                                            while next(';'):
+                                                                                if next('var'): write('var');
+                                                                                prettify(typedIds);
+                                                                        write(')');
+                                                                     prettify(declarations);
+                                                                     prettify(compoundStatement);*)
+
+program = "program" ident ";" declarations compoundStatement ; (* write('program'); write(ident); indent++; indent(); newline(); prettify(rest) *)
