@@ -1,5 +1,5 @@
 '''
-name: James You
+names: James You, Zichen Jiang
 '''
 
 from SC import TIMES, DIV, MOD, AND, PLUS, MINUS, OR, EQ, NE, LT, GT, LE, \

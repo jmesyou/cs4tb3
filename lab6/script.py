@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-name: James You
+names: James You, Zichen Jiang
 '''
 
 import sys, re

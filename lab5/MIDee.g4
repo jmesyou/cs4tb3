@@ -9,7 +9,7 @@ import cas.cs4tb3.MIDIHelper;
 
 @members {
 /**
- * name: James You
+ * names: James You, Zichen Jiang
  */
 
 private MIDIHelper midi = new MIDIHelper();

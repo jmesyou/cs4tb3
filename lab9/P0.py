@@ -1,5 +1,5 @@
 '''
-name: James You
+names: James You, Zichen Jiang
 '''
 
 import SC  #  used for SC.init, SC.sym, SC.val, SC.error
