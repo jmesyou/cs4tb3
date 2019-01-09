@@ -258,18 +258,35 @@ def genIndex(x, y):
 
 
 def genAssign(x, y):
-    if type(x) == Var:
+    if type(x) == Var or type(x) == Reg:
         if type(y) == Cond:
             putBranchOp(condOp(negate(y.cond)), y.left, y.right, y.labA[0])
-            releaseReg(y.left); releaseReg(y.right); r = obtainReg()
+            releaseReg(y.left)
+            releaseReg(y.right)
+            if type(x) == Var:
+                r = obtainReg()
+            else:
+                r = x.reg
             putLab(y.labB); putOp('addi', r, R0, 1) # load true
             lab = newLabel()
             putInstr('b', lab)
             putLab(y.labA); putOp('addi', r, R0, 0) # load false
             putLab(lab)
-        elif type(y) != Reg: y = loadItem(y); r = y.reg
-        else: r = y.reg
-        putMemOp('sw', r, x.reg, x.adr); releaseReg(r)
+        elif type(y) != Reg: 
+            if type(x) == Reg:
+                loadItemReg(y, x.reg)
+            else:
+                y = loadItem(y)
+                r = y.reg
+        else: 
+            if type(x) == Reg:
+                loadItemReg(y, x.reg)
+            else:
+                r = y.reg
+        if type(x) == Var:
+            putMemOp('sw', r, x.reg, x.adr); releaseReg(r)
+        else:
+            pass
     else: assert False
 
 
@@ -291,11 +308,18 @@ def genProcStart():
 
 def genFormalParams(sc):
     n = len(sc) # parameter block length
+    a_ = ['$a0', '$a1', '$a2', '$a3']
     for i in range(n):
-        if sc[i].tp in (Int, Bool) or type(sc[i]) == Ref:
-            sc[i].reg, sc[i].adr = FP, (n - i - 1) * 4
-        else: mark('no structured value parameters')
-    return n * 4
+            if sc[i].tp in (Int, Bool) or type(sc[i]) == Ref:
+                if a_:
+                    sc[i].reg, sc[i].adr = a_.pop(0), 0
+                else:
+                    sc[i].reg, sc[i].adr = FP, (n - i - 1) * 4
+            else: mark('no structured value parameters')
+    if n <= 4:
+        return 0
+    else:
+        return (n * 4) - 16
 
 
 def genProcEntry(ident, parsize, localsize):
@@ -319,13 +343,28 @@ def genProcExit(x, parsize, localsize):
 def genActualPara(ap, fp, n):
     if type(fp) == Ref:  #  reference parameter, assume p is Var
         if ap.adr != 0:  #  load address in register
-            r = obtainReg(); putMemOp('la', r, ap.reg, ap.adr)
-        else: r = ap.reg  #  address already in register
-        putMemOp('sw', r, SP, - 4 * (n + 1)); releaseReg(r)
+            if n >= 4:
+                r = obtainReg()
+            else:
+                r = fp.reg
+            putMemOp('la', r, ap.reg, ap.adr)
+        else: 
+            if n < 4:
+                loadItemReg(ap.reg, fp.reg)
+            else:
+                r = ap.reg  #  address already in register
+        if n >= 4:
+            putMemOp('sw', r, SP, - 4 * ((n-4) + 1))
+            releaseReg(r)
     else:  #  value parameter
         if type(ap) != Cond:
-            if type(ap) != Reg: ap = loadItem(ap)
-            putMemOp('sw', ap.reg, SP, - 4 * (n + 1)); releaseReg(ap.reg)
+            if n >= 4:
+                if type(ap) != Reg: 
+                    ap = loadItem(ap)
+                putMemOp('sw', ap.reg, SP, - 4 * ((n - 4) + 1))
+                releaseReg(ap.reg)
+            else:
+                loadItemReg(ap, fp.reg)
         else: mark('unsupported parameter type')
 
 

@@ -1,5 +1,5 @@
 '''
-names: James You, Zichen Jiang
+names: James You, Zicheng Jiang
 '''
 
 import pytest

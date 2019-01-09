@@ -1,5 +1,5 @@
 '''
-names: James You, Zichen Jiang
+names: James You, Zicheng Jiang
 '''
 
 TIMES = 1; DIV = 2; MOD = 3; AND = 4; PLUS = 5; MINUS = 6
