@@ -1,0 +1,63 @@
+<!--
+names: James You, Zicheng Jiang
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:element name="contacts">
+    <xsd:complexType>
+      <xsd:sequence maxOccurs="unbounded">
+        <xsd:element name="pal">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+
+              <xsd:element name="nickname" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+
+              <xsd:element name="birthday" type="xsd:date" minOccurs="0" maxOccurs="1"/>
+
+              <xsd:element name="os" minOccurs="1" maxOccurs="1">
+                  <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                      <xsd:enumeration value="Mac"/>
+                      <xsd:enumeration value="PC"/>
+                      <xsd:enumeration value="Linux"/>
+                    </xsd:restriction>
+                  </xsd:simpleType>
+              </xsd:element>
+
+              <xsd:element name="address" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+
+              <xsd:element name="postal_code" minOccurs="0" maxOccurs="1">
+                <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="[A-Z][0-9][A-Z] [0-9][A-Z][0-9]"/>
+                    <xsd:length value="7"/>
+                  </xsd:restriction>
+                </xsd:simpleType>
+              </xsd:element>
+
+              <xsd:choice minOccurs="1" maxOccurs="2">
+                <xsd:element name="e-mail" minOccurs="1" maxOccurs="1">
+                    <xsd:simpleType>
+                      <xsd:restriction base="xsd:string">
+                        <xsd:pattern value="[a-zA-Z0-9._-]+@[a-zA-Z0-9]+(.[a-zA-Z0-9]+)*.[a-zA-Z]+"/>
+                      </xsd:restriction>
+                    </xsd:simpleType>
+                </xsd:element>
+
+                <xsd:element name="phone" minOccurs="1" maxOccurs="1">
+                  <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                      <xsd:pattern value="\([0-9]{3}\) [0-9]{3} [0-9]{4}"/>
+                    </xsd:restriction>
+                  </xsd:simpleType>
+                </xsd:element>
+              </xsd:choice>
+
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>
